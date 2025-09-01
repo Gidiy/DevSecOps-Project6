@@ -1,8 +1,0 @@
-.venv/
-instance/
-utils/__pycache__
-routes/__pycache__
-dao/__pycache__
-.env
-.vscode
-.gitignore
