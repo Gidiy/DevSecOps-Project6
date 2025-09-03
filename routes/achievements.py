@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from utils.utils import users, L
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token
-from dao.user import User
+from classes.user import User
 from utils.db import db
 
 achievements_bp = Blueprint('achievements_bp', __name__)
