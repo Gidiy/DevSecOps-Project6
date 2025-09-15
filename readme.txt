@@ -61,3 +61,5 @@ GET /api/rewards/my-points - בדיקת נקודות אישיות
 POST /api/rewards/donate-points - תרומת נקודות לצדקה 
 GET /api/rewards/store - אחסון תגמולים במשרד 
 POST /api/rewards/suggest - הצעת תגמולים חדשים
+
+כדי להקל על שליחת הבקשות יצרנו ממשק משתמש נוח שבוחרים את המצב הרצוי ומקבלים את תשובת הrequest

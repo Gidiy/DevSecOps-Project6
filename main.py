@@ -1,6 +1,5 @@
 import datetime
-
-from flask import Flask, request, g, jsonify
+from flask import Flask, request, g, jsonify, redirect, url_for ,render_template
 from routes.login import login_bp
 from routes.achievements import achievements_bp
 from routes.competitions import competitions_bp
@@ -50,7 +49,7 @@ app.register_blueprint(social_bp, url_prefix='/social')
 
 @app.route('/') #postman - http://127.0.0.1:5001/
 def homepage():
-    return 'Welcome to Project6!'
+    return render_template("homepage.html")
 
 
 if __name__ == '__main__':

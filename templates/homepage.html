@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>API Tester with External Presets</title>
+<style>
+body { font-family: Arial; margin: 20px; }
+select, input, textarea, button { margin: 5px 0; width: 100%; }
+textarea { resize: vertical; }
+#response { background: #f4f4f4; padding: 10px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<h2>API Tester with External Presets</h2>
+
+<label for="action">Select Action:</label>
+<select id="action" onchange="setPreset()">
+  <option value="">--Choose Action--</option>
+</select>
+
+<label for="url">URL:</label>
+<input type="text" id="url">
+
+<label for="method">Method:</label>
+<input type="text" id="method" readonly>
+
+<label for="body">Request Body (JSON):</label>
+<textarea id="body" rows="6">{}</textarea>
+
+<button onclick="sendRequest()">Send Request</button>
+
+<h3>Response</h3>
+<div>Status: <span id="status"></span></div>
+<pre id="response"></pre>
+
+<script>
+let presets = {};
+
+// Load presets from external file
+fetch("/static/presets.txt")
+  .then(res => res.json())
+  .then(data => {
+    presets = data;
+    const select = document.getElementById("action");
+    Object.keys(presets).forEach(key => {
+      const option = document.createElement("option");
+      option.value = key;
+      option.text = key.replace(/_/g, " ");
+      select.add(option);
+    });
+  })
+  .catch(err => console.error("Failed to load presets:", err));
+
+// Set preset values
+function setPreset() {
+  const action = document.getElementById("action").value;
+  if (action && presets[action]) {
+    const preset = presets[action];
+    document.getElementById("url").value = preset.url;
+    document.getElementById("method").value = preset.method;
+    document.getElementById("body").value = preset.body;
+  }
+}
+
+// Send request
+async function sendRequest() {
+  const url = document.getElementById("url").value;
+  const method = document.getElementById("method").value;
+  let body = document.getElementById("body").value;
+
+  const options = { method };
+  if (method !== "GET") {
+    try { body = JSON.parse(body); } catch (e) { alert("Invalid JSON"); return; }
+    options.headers = { "Content-Type": "application/json" };
+    options.body = JSON.stringify(body);
+  }
+
+  try {
+    const res = await fetch(url, options);
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); } catch { data = text; }
+    document.getElementById("status").innerText = res.status;
+    document.getElementById("response").innerText = JSON.stringify(data, null, 2);
+  } catch (err) {
+    document.getElementById("status").innerText = "Error";
+    document.getElementById("response").innerText = err;
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+{
+  "register_user": {
+    "url": "http://127.0.0.1:5001/register",
+    "method": "POST",
+    "body": "{\"username\":\"gilad\",\"password\":123}"
+  },
+  "login_user": {
+    "url": "http://127.0.0.1:5001/login",
+    "method": "POST",
+    "body": "{\"username\":\"gilad\",\"password\":123}"
+  },
+  "achievements_available": {
+    "url": "http://127.0.0.1:5001/achievements/available",
+    "method": "GET",
+    "body": "{}"
+  },
+  "achievements_unlock": {
+    "url": "http://127.0.0.1:5001/achievements/unlock",
+    "method": "POST",
+    "body": "{\"achievement_id\":1}"
+  },
+  "achievements_my_progress": {
+    "url": "http://127.0.0.1:5001/achievements/my-progress",
+    "method": "GET",
+    "body": "{}"
+  },
+  "achievements_create_custom": {
+    "url": "http://127.0.0.1:5001/achievements/create-custom",
+    "method": "POST",
+    "body": "{\"name\":\"My Custom Achievement\",\"description\":\"ok?\"}"
+  },
+  "achievements_rare": {
+    "url": "http://127.0.0.1:5001/achievements/rare",
+    "method": "GET",
+    "body": "{}"
+  },
+  "achievements_share": {
+    "url": "http://127.0.0.1:5001/achievements/share",
+    "method": "POST",
+    "body": "{\"achievement_id\":1}"
+  },
+  "games_create": {
+    "url": "http://127.0.0.1:5001/games/create",
+    "method": "POST",
+    "body": "{\"title\":\"Chess Championship\",\"description\":\"Online chess tournament\",\"start_at\":\"2025-09-20T10:00:00\",\"end_at\":\"2025-09-21T18:00:00\",\"is_active\":true}"
+  },
+  "games_active": {
+    "url": "http://127.0.0.1:5001/games/active",
+    "method": "GET",
+    "body": "{}"
+  },
+  "games_join": {
+    "url": "http://127.0.0.1:5001/games/join",
+    "method": "POST",
+    "body": "{\"competition_id\":1}"
+  },
+  "games_progress_update": {
+    "url": "http://127.0.0.1:5001/games/progress/update",
+    "method": "PUT",
+    "body": "{\"competition_id\":1,\"delta\":10}"
+  },
+  "games_rules_update": {
+    "url": "http://127.0.0.1:5001/games/rules/update",
+    "method": "GET",
+    "body": "{}"
+  },
+  "games_custom_create": {
+    "url": "http://127.0.0.1:5001/games/custom/create",
+    "method": "POST",
+    "body": "{\"name\":\"Math Quiz\",\"rules\":{\"questions\":20,\"time_per_question\":\"15s\"}}"
+  }
+}
