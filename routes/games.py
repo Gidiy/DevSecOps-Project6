@@ -1,95 +1,166 @@
 from flask import Blueprint, jsonify, request
 from utils.utils import movies, L
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from utils.db import db
+from datetime import datetime
+import json
 
 games_bp = Blueprint('games_bp', __name__)
 
+class Competition(db.Model):
+    __tablename__ = 'competitions'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    start_at = db.Column(db.DateTime, nullable=True)
+    end_at = db.Column(db.DateTime, nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-@games_bp.post('/create') #יצירת תחרות חדשה
+class Participation(db.Model):
+    __tablename__ = 'participations'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(120), nullable=False)
+    competition_id = db.Column(db.Integer, db.ForeignKey('competitions.id'), nullable=False)
+    progress = db.Column(db.Integer, default=0)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    competition = db.relationship('Competition', backref='participants')
+
+class Game(db.Model):
+    __tablename__ = 'games'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False, unique=True)
+    rules_json = db.Column(db.Text, nullable=True)  # JSON string
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+def _uid_or_anon() -> str:
+    try:
+        return get_jwt_identity() or 'anonymous'
+    except Exception:
+        return 'anonymous'
+
+def _parse_dt(s):
+    if not s:
+        return None
+    try:
+        return datetime.fromisoformat(s)
+    except Exception:
+        return None
+
+def _loads(txt):
+    if txt is None:
+        return None
+    try:
+        return json.loads(txt)
+    except Exception:
+        return None
+
+def _dumps(obj):
+    try:
+        return json.dumps(obj) if obj is not None else None
+    except Exception:
+        return None
+
+'''
+#postman - http://127.0.0.1:5001/games/create - POST
+{ "title": "Chess Championship", "description": "Online chess tournament", "start_at": "2025-09-20T10:00:00", "end_at": "2025-09-21T18:00:00","is_active": true}
+'''
+@games_bp.post('/create')  # create new competition
+@jwt_required(optional=True)
 def create_game():
-    return 200
+    data = request.get_json(silent=True) or {}
+    title = data.get('title')
+    if not title:
+        return jsonify({'error': 'title is required'}), 400
+    comp = Competition(
+        title=title,
+        description=data.get('description'),
+        start_at=_parse_dt(data.get('start_at')),
+        end_at=_parse_dt(data.get('end_at')),
+        is_active=bool(data.get('is_active', True))
+    )
+    db.session.add(comp)
+    db.session.commit()
+    L.log(f'Competition created #{comp.id} "{comp.title}"')
+    return jsonify({'id': comp.id, 'title': comp.title}), 201
 
-@games_bp.get('/active') #צפייה בתחרויות פעילות
+@games_bp.get('/active')  # view competition # http://127.0.0.1:5001/games/active
 def active_game():
-    return jsonify({'status': 'success'}), 200
+    now = datetime.utcnow()
+    q = Competition.query.filter_by(is_active=True)
+    # (Optional) filter by time window if desired
+    comps = q.all()
+    return jsonify([{
+        'id': c.id,
+        'title': c.title,
+        'description': c.description,
+        'start_at': c.start_at.isoformat() if c.start_at else None,
+        'end_at': c.end_at.isoformat() if c.end_at else None
+    } for c in comps]), 200
 
-@games_bp.post('/join') #הצטרפות לתחרות
+@games_bp.post('/join')  # join competition #postman - http://127.0.0.1:5001/games/join - POST { "competition_id": 1}
+@jwt_required(optional=True)
 def join_game():
-    return 200
+    data = request.get_json(silent=True) or {}
+    comp_id = data.get('competition_id')
+    if not comp_id:
+        return jsonify({'error': 'competition_id is required'}), 400
+    user_id = _uid_or_anon()
 
-@games_bp.put('/progress/update') #עדכון התקדמות התחרות
+    comp = Competition.query.get(comp_id)
+    if not comp:
+        return jsonify({'error': 'competition not found'}), 404
+
+    existing = Participation.query.filter_by(user_id=user_id, competition_id=comp_id).first()
+    if existing:
+        return jsonify({'message': 'already joined', 'participation_id': existing.id}), 200
+
+    p = Participation(user_id=user_id, competition_id=comp_id, progress=0)
+    db.session.add(p)
+    db.session.commit()
+    return jsonify({'message': 'joined', 'participation_id': p.id}), 201
+
+@games_bp.put('/progress/update')  # competition progress and update #postman - http://127.0.0.1:5001/games/progress/update - PUT { "competition_id": 1, "delta": 10}
+@jwt_required(optional=True)
 def update_progress_game():
-    return 200
+    data = request.get_json(silent=True) or {}
+    comp_id = data.get('competition_id')
+    delta = data.get('delta', 0)
+    if comp_id is None:
+        return jsonify({'error': 'competition_id is required'}), 400
+    user_id = _uid_or_anon()
 
-@games_bp.get('/rules/update') #קבלת כללי תחרות
+    p = Participation.query.filter_by(user_id=user_id, competition_id=comp_id).first()
+    if not p:
+        return jsonify({'error': 'not joined'}), 404
+
+    try:
+        p.progress = int(p.progress) + int(delta)
+    except Exception:
+        return jsonify({'error': 'delta must be an integer'}), 400
+
+    db.session.commit()
+    return jsonify({'message': 'progress updated', 'progress': p.progress}), 200
+
+@games_bp.get('/rules/update')  # view rules #postman - http://127.0.0.1:5001/games/rules/update - GET
 def update_rules_game():
-    return jsonify({'status': 'success'}), 200
+    games = Game.query.filter_by(is_active=True).all()
+    return jsonify([{
+        'id': g.id,
+        'name': g.name,
+        'rules': _loads(g.rules_json)
+    } for g in games]), 200
 
-@games_bp.post('/custom/create') #  אישית יצירת כללי משחק מותאמים 
+@games_bp.post('/custom/create')  # Create competition rules #postman - http://127.0.0.1:5001/games/custom/create - POST { "name": "Math Quiz", "rules": {  "questions": 20, "time_per_question": "15s" }}
+@jwt_required(optional=True)
 def create_custom_rules_game():
-    return 200
-
-
-'''
-@games_bp.get('/') #postman - http://127.0.0.1:5001/games/
-def get_all():
-    return jsonify(movies)
-
-
-@games_bp.get('/<int:id>')#postman - http://127.0.0.1:5001/games/1
-@jwt_required()
-def get_by_id(id):
-    for movie in movies:
-        if movie.get('id') == id:
-            print(get_jwt_identity())
-            return jsonify(movie)
-    return jsonify({'status': 'not found'}), 404
-
-
-@games_bp.post('/') #postman - http://127.0.0.1:5001/games/ body(raw) - {"name": "spiderman11", "rate": 3.9 }-only if has "name"
-#@jwt_required()
-def add_game():
-    new_game = request.json
-    if not new_game or 'name' not in new_game:
-        return jsonify({'status': 'bad request', 'message': 'name is required'}), 400
-    new_id = max([game['id'] for game in games], default=0) + 1
-    new_game['id'] = new_id
-    games.append(new_game)
-    L.log(f'Game added {new_game["name"]}')
-    return jsonify(new_game), 201
-
-
-@games_bp.put('/<int:id>')#postman - http://127.0.0.1:5001/games/1 body(raw) - {  "name": "bax", "rate": 3.0 }
-def update_game(id):
-    update_data = request.json
-
-    if not update_data:
-        return jsonify({'status': 'bad request', 'message': 'no data provided'}), 400
-
-    for movie in movies:
-        if game.get('id') == id:
-            if 'name' in update_data:
-                movie['name'] = update_data['name']
-            if 'rate' in update_data:
-                movie['rate'] = update_data['rate']
-            return jsonify(movie)
-
-    return jsonify({'status': 'not found'}), 404
-
-
-@games_bp.delete('/<int:id>')#postman - http://127.0.0.1:5001/movies/1 
-def delete_by_id(id):
-    for i, movie in enumerate(movies):
-        if movie.get('id') == id:
-            deleted_movie = movies.pop(i)
-            return jsonify({'status': 'deleted', 'movie': deleted_movie})
-
-    return jsonify({'status': 'not found'}), 404
-
-
-@games_bp.delete('/')#postman - http://127.0.0.1:5001/movies
-def delete_all():
-    deleted_count = len(movies)
-    movies.clear()#return []
-    return jsonify({'status': 'deleted', 'count': deleted_count})
-'''
+    data = request.get_json(silent=True) or {}
+    name = data.get('name')
+    if not name:
+        return jsonify({'error': 'name is required'}), 400
+    rules = data.get('rules')  # expect dict
+    g = Game(name=name, rules_json=_dumps(rules), is_active=True)
+    db.session.add(g)
+    db.session.commit()
+    return jsonify({'id': g.id, 'name': g.name, 'rules': _loads(g.rules_json)}), 201
