@@ -1,95 +1,102 @@
 from flask import Blueprint, request, jsonify
-from utils.utils import users, L
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_jwt_extended import create_access_token
-from classes.user import User
+from utils.utils import L
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from utils.db import db
+from datetime import datetime
+from routes.games import Competition  # 👈 use Competition from games.py
 
 competitions_bp = Blueprint('competitions_bp', __name__)
 
-@competitions_bp.post("/code-quality")  # תחרויות איכות קוד
-def competitions_code_quality():
-    # TODO: implement logic
-    return 200
+# ---------- MODELS ----------
+class UserCompetition(db.Model):
+    __tablename__ = 'user_competitions'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(120), nullable=False)
+    competition_id = db.Column(db.Integer, db.ForeignKey('competitions.id'), nullable=False)
+    joined_at = db.Column(db.DateTime, default=datetime.utcnow)
+    competition = db.relationship('Competition')
 
-@competitions_bp.post("/learning") #אתגרי למידה
-def competitions_learning():
-    # TODO: implement logic
-    return 200
-
-@competitions_bp.post("/fitness")  # אתגרי כושר במשרד
-def competitions_fitness():
-    # TODO: implement logic
-    return 200
-
-@competitions_bp.post("/sustainability")  # תחרויות משרד ירוק
-def competitions_sustainability():
-    # TODO: implement logic
-    return 200
-
-@competitions_bp.post("/creativity")  #  אתגרים יצירתיים
-def competitions_creativity():
-    # TODO: implement logic
-    return 200
-
-@competitions_bp.post("/team-building")  #  פעילויות בניית צוות
-def competitions_team_building():
-    # TODO: implement logic
-    return 200
-
-
-'''
-@competitions_bp.post('/signup') #postman - http://127.0.0.1:5001/user/signup body(raw) - { "username": "gilad", "password": "123" }
-def signup():
+# ---------- HELPERS ----------
+def _uid_or_anon() -> str:
     try:
-        data = request.json
-        if 'password' not in request.json.keys() or 'username' not in request.json.keys():
-            return 'name and password are required ', 403
-        data['password'] = generate_password_hash(data['password'])
-        print(data)
-        for user in users:
-            if user['username'] == data['username']:
-                return 'already exists', 403
+        return get_jwt_identity() or "anonymous"
+    except Exception:
+        return "anonymous"
 
-        # users.append(data)
-        user1 = User(username=data['username'], password=data['password'])
-        db.session.add(user1)
+def _ser(c: Competition):
+    return {
+        "id": c.id,
+        "title": getattr(c, "title", None),  # since Competition in games.py uses 'title'
+        "description": c.description,
+        "start_at": c.start_at,
+        "end_at": c.end_at,
+        "is_active": c.is_active,
+    }
+
+def _join_competition(category: str, default_title: str, description: str):
+    """Shared logic: ensure competition exists, join it for the current user."""
+    comp = Competition.query.filter_by(title=default_title).first()
+    if not comp:
+        comp = Competition(
+            title=default_title,
+            description=description,
+            start_at=None,
+            end_at=None,
+            is_active=True
+        )
+        db.session.add(comp)
         db.session.commit()
-        L.log(f'user added [{data["username"]}]')
-        return 'got it', 201
-    except Exception as e:
-        return str(e), 200
 
+    user_id = _uid_or_anon()
+    existing = UserCompetition.query.filter_by(user_id=user_id, competition_id=comp.id).first()
+    if existing:
+        return jsonify({"message": "already joined", "competition": _ser(comp)}), 200
 
-@competitions_bp.post('/login')
-def login():
-    username = request.json['username']
-    password = request.json['password']
+    uc = UserCompetition(user_id=user_id, competition_id=comp.id)
+    db.session.add(uc)
+    db.session.commit()
+    L.log(f"Competition joined by {user_id}: {comp.title}")
+    return jsonify({"message": "joined", "competition": _ser(comp)}), 200
 
-    # Query the database instead of "users" list
-    user = User.query.filter_by(username=username).first()
+# ---------- ROUTES ----------
+@competitions_bp.post("/code-quality")
+# POST http://127.0.0.1:5001/competitions/code-quality
+# Body: {}
+# @jwt_required(optional=True)
+def competitions_code_quality():
+    return _join_competition("code-quality", "Code Quality Challenge", "Improve code readability and maintainability")
 
-    if not user or not check_password_hash(user.password, password):
-        return {'msg': "username or password incorrect"}, 401
+@competitions_bp.post("/learning")
+# POST http://127.0.0.1:5001/competitions/learning
+# Body: {}
+# @jwt_required(optional=True)
+def competitions_learning():
+    return _join_competition("learning", "Learning Challenge", "Upskill and share knowledge")
 
-    access_token = create_access_token(identity=username)
-    return jsonify(access_token=access_token)
+@competitions_bp.post("/fitness")
+# POST http://127.0.0.1:5001/competitions/fitness
+# Body: {}
+# @jwt_required(optional=True)
+def competitions_fitness():
+    return _join_competition("fitness", "Office Fitness Challenge", "Stay active at work")
 
+@competitions_bp.post("/sustainability")
+# POST http://127.0.0.1:5001/competitions/sustainability
+# Body: {}
+# @jwt_required(optional=True)
+def competitions_sustainability():
+    return _join_competition("sustainability", "Green Office Challenge", "Promote eco-friendly practices")
 
-@competitions_bp.get('/')  # Postman - GET http://127.0.0.1:5001/user
-def get_all_users():
-    # Query all users from the DB
-    users = User.query.all()
+@competitions_bp.post("/creativity")
+# POST http://127.0.0.1:5001/competitions/creativity
+# Body: {}
+# @jwt_required(optional=True)
+def competitions_creativity():
+    return _join_competition("creativity", "Creativity Challenge", "Express and innovate")
 
-    # Convert SQLAlchemy objects to plain dicts so they can be JSONified
-    result = []
-    for u in users:
-        result.append({
-            "id": u.id,
-            "username": u.username,
-            "password": u.password
-            # Do NOT return password hashes in a real app!
-        })
-
-    return jsonify(result), 200
-'''
+@competitions_bp.post("/team-building")
+# POST http://127.0.0.1:5001/competitions/team-building
+# Body: {}
+# @jwt_required(optional=True)
+def competitions_team_building():
+    return _join_competition("team-building", "Team Building Activity", "Strengthen collaboration")

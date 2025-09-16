@@ -68,5 +68,35 @@
     "url": "http://127.0.0.1:5001/games/custom/create",
     "method": "POST",
     "body": "{\"name\":\"Math Quiz\",\"rules\":{\"questions\":20,\"time_per_question\":\"15s\"}}"
+  },
+  "competitions_code_quality": {
+    "url": "http://127.0.0.1:5001/competitions/code-quality",
+    "method": "POST",
+    "body": "{}"
+  },
+  "competitions_learning": {
+    "url": "http://127.0.0.1:5001/competitions/learning",
+    "method": "POST",
+    "body": "{}"
+  },
+  "competitions_fitness": {
+    "url": "http://127.0.0.1:5001/competitions/fitness",
+    "method": "POST",
+    "body": "{}"
+  },
+  "competitions_sustainability": {
+    "url": "http://127.0.0.1:5001/competitions/sustainability",
+    "method": "POST",
+    "body": "{}"
+  },
+  "competitions_creativity": {
+    "url": "http://127.0.0.1:5001/competitions/creativity",
+    "method": "POST",
+    "body": "{}"
+  },
+  "competitions_team_building": {
+    "url": "http://127.0.0.1:5001/competitions/team-building",
+    "method": "POST",
+    "body": "{}"
   }
 }
