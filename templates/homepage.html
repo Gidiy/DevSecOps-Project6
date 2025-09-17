@@ -1,103 +1,226 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>API Tester with External Presets</title>
-<style>
-body { font-family: Arial; margin: 20px; }
-select, input, textarea, button { margin: 5px 0; width: 100%; }
-textarea { resize: vertical; }
-#response { background: #f4f4f4; padding: 10px; white-space: pre-wrap; }
-</style>
+  <meta charset="UTF-8">
+  <title>Gamification Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<h2>API Tester with External Presets</h2>
+<body class="bg-gray-100 font-sans">
 
-<label for="action">Select Action:</label>
-<select id="action" onchange="setPreset()">
-  <option value="">--Choose Action--</option>
-</select>
+  <!-- Header -->
+  <header class="bg-blue-600 text-white p-4 flex justify-between items-center shadow">
+    <h1 class="text-xl font-bold">Gamification Platform</h1>
+    <div id="user-status" class="text-sm">Not logged in</div>
+  </header>
 
-<label for="url">URL:</label>
-<input type="text" id="url">
+  <div class="flex">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white shadow-lg min-h-screen p-4 space-y-4">
+      <button onclick="showSection('login-section')" class="w-full bg-blue-500 text-white py-2 rounded">🔑 Login</button>
+      <button onclick="showSection('register-section')" class="w-full bg-green-500 text-white py-2 rounded">📝 Register</button>
+      <hr>
+      <button onclick="showSection('games-section')" class="w-full bg-gray-200 py-2 rounded">🎮 Competitions</button>
+      <button onclick="showSection('achievements-section')" class="w-full bg-gray-200 py-2 rounded">🏆 Achievements</button>
+      <button onclick="showSection('leaderboards-section')" class="w-full bg-gray-200 py-2 rounded">📊 Leaderboards</button>
+      <button onclick="showSection('rewards-section')" class="w-full bg-gray-200 py-2 rounded">🎁 Rewards</button>
+      <button onclick="showSection('social-section')" class="w-full bg-gray-200 py-2 rounded">👥 Social</button>
+    </aside>
 
-<label for="method">Method:</label>
-<input type="text" id="method" readonly>
+    <!-- Main content -->
+    <main class="flex-1 p-6">
+      <!-- Login -->
+      <section id="login-section" class="hidden">
+        <h2 class="text-2xl mb-4">Login</h2>
+        <input id="login-username" class="border p-2 w-full mb-2" placeholder="Username">
+        <input id="login-password" type="password" class="border p-2 w-full mb-2" placeholder="Password">
+        <button onclick="loginUser()" class="bg-blue-600 text-white px-4 py-2 rounded">Login</button>
+      </section>
 
-<label for="body">Request Body (JSON):</label>
-<textarea id="body" rows="6">{}</textarea>
+      <!-- Register -->
+      <section id="register-section" class="hidden">
+        <h2 class="text-2xl mb-4">Register</h2>
+        <input id="reg-username" class="border p-2 w-full mb-2" placeholder="Username">
+        <input id="reg-password" type="password" class="border p-2 w-full mb-2" placeholder="Password">
+        <button onclick="registerUser()" class="bg-green-600 text-white px-4 py-2 rounded">Register</button>
+      </section>
 
-<button onclick="sendRequest()">Send Request</button>
+      <!-- Competitions -->
+        <section id="games-section" class="hidden">
+      <h2 class="text-2xl mb-4">Competitions</h2>
+      <div class="space-x-2">
+        <button onclick="sendRequest('games_create')" class="bg-blue-500 text-white px-3 py-2 rounded">Create</button>
+        <button onclick="sendRequest('games_active')" class="bg-gray-500 text-white px-3 py-2 rounded">Active</button>
+        <button onclick="sendRequest('games_join')" class="bg-green-500 text-white px-3 py-2 rounded">Join</button>
+        <button onclick="sendRequest('games_progress_update')" class="bg-yellow-500 text-white px-3 py-2 rounded">Update Progress</button>
+        <button onclick="sendRequest('games_custom_create')" class="bg-purple-500 text-white px-3 py-2 rounded">Custom Rules</button>
+      </div>
+      <pre id="games-output" class="bg-white p-3 mt-3 rounded shadow"></pre>
+    </section>
 
-<h3>Response</h3>
-<div>Status: <span id="status"></span></div>
-<pre id="response"></pre>
+      <!-- Achievements -->
+<section id="achievements-section" class="hidden">
+      <h2 class="text-2xl mb-4">Achievements</h2>
+      <div class="space-x-2">
+        <button onclick="sendRequest('achievements_available')" class="bg-blue-500 text-white px-3 py-2 rounded">Available</button>
+        <button onclick="sendRequest('achievements_unlock')" class="bg-green-500 text-white px-3 py-2 rounded">Unlock</button>
+        <button onclick="sendRequest('achievements_my_progress')" class="bg-yellow-500 text-white px-3 py-2 rounded">My Progress</button>
+        <button onclick="sendRequest('achievements_create_custom')" class="bg-purple-500 text-white px-3 py-2 rounded">Custom</button>
+        <button onclick="sendRequest('achievements_rare')" class="bg-pink-500 text-white px-3 py-2 rounded">Rare</button>
+        <button onclick="sendRequest('achievements_share')" class="bg-indigo-500 text-white px-3 py-2 rounded">Share</button>
+      </div>
+      <pre id="achievements-output" class="bg-white p-3 mt-3 rounded shadow"></pre>
+      <canvas id="achievementsChart" class="mt-4"></canvas>
+    </section>
+
+      <!-- Leaderboards -->
+       <section id="leaderboards-section" class="hidden">
+      <h2 class="text-2xl mb-4">Leaderboards</h2>
+      <div class="space-x-2">
+        <button onclick="sendRequest('leaderboards_global')" class="bg-blue-500 text-white px-3 py-2 rounded">Global</button>
+        <button onclick="sendRequest('leaderboards_team')" class="bg-green-500 text-white px-3 py-2 rounded">Team</button>
+        <button onclick="sendRequest('leaderboards_monthly')" class="bg-yellow-500 text-white px-3 py-2 rounded">Monthly</button>
+        <button onclick="sendRequest('leaderboards_hall_of_fame')" class="bg-purple-500 text-white px-3 py-2 rounded">Hall of Fame</button>
+        <button onclick="sendRequest('leaderboards_predictions')" class="bg-pink-500 text-white px-3 py-2 rounded">Predictions</button>
+      </div>
+      <pre id="leaderboards-output" class="bg-white p-3 mt-3 rounded shadow"></pre>
+    </section>
+
+      <!-- Rewards -->
+     <section id="rewards-section" class="hidden">
+      <h2 class="text-2xl mb-4">Rewards</h2>
+      <div class="space-x-2">
+        <button onclick="sendRequest('rewards_teams_create')" class="bg-blue-500 text-white px-3 py-2 rounded">rewards teams create</button>
+        <button onclick="sendRequest('rewards_friends')" class="bg-green-500 text-white px-3 py-2 rounded">rewards friends</button>
+        <button onclick="sendRequest('rewards_challenges_send')" class="bg-yellow-500 text-white px-3 py-2 rounded">rewards challenges send</button>
+        <button onclick="sendRequest('rewards_activity_feed')" class="bg-purple-500 text-white px-3 py-2 rounded">rewards activity feed</button>
+        <button onclick="sendRequest('rewards_rivalries')" class="bg-pink-500 text-white px-3 py-2 rounded">rewards rivalries</button>
+      </div>
+      <pre id="rewards-output" class="bg-white p-3 mt-3 rounded shadow"></pre>
+    </section>
+
+      <!-- Social -->
+      <section id="social-section" class="hidden">
+      <h2 class="text-2xl mb-4">Social</h2>
+      <div class="space-x-2">
+        <button onclick="sendRequest('social_available')" class="bg-blue-500 text-white px-3 py-2 rounded">social available</button>
+        <button onclick="sendRequest('social_redeem')" class="bg-green-500 text-white px-3 py-2 rounded">social redeem</button>
+        <button onclick="sendRequest('social_my_points')" class="bg-yellow-500 text-white px-3 py-2 rounded">social my points</button>
+        <button onclick="sendRequest('social_donate_points')" class="bg-purple-500 text-white px-3 py-2 rounded">social donate points</button>
+        <button onclick="sendRequest('social_store')" class="bg-pink-500 text-white px-3 py-2 rounded">social store</button>
+        <button onclick="sendRequest('social_suggest')" class="bg-indigo-500 text-white px-3 py-2 rounded">Rivalries</button>
+      </div>
+      <pre id="social-output" class="bg-white p-3 mt-3 rounded shadow"></pre>
+    </section>
+    </main>
+  </div>
 
 <script>
+let authToken = null;
+
+// Switch visible section
+function showSection(id) {
+  document.querySelectorAll("main section").forEach(sec => sec.classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+}
+
+// Register user
+async function registerUser() {
+  const username = document.getElementById("reg-username").value;
+  const password = document.getElementById("reg-password").value;
+
+  const res = await fetch("http://127.0.0.1:5001/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password })
+  });
+  const data = await res.json();
+  alert("Registered: " + JSON.stringify(data));
+}
+
+// Login user
+async function loginUser() {
+  const username = document.getElementById("login-username").value;
+  const password = document.getElementById("login-password").value;
+
+  const res = await fetch("http://127.0.0.1:5001/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password })
+  });
+  const data = await res.json();
+  if (res.ok) {
+    authToken = data.token || "session";
+    document.getElementById("user-status").innerText = "Logged in as " + username;
+    alert("Login successful!");
+  } else {
+    alert("Login failed: " + JSON.stringify(data));
+  }
+}
+
+// Load competitions
+async function loadCompetitions() {
+  const res = await fetch("http://127.0.0.1:5001/games/active");
+  const data = await res.json();
+  document.getElementById("competitions-output").innerText = JSON.stringify(data, null, 2);
+}
+
+// Load achievements
+async function loadAchievements() {
+  const res = await fetch("http://127.0.0.1:5001/achievements/available");
+  const data = await res.json();
+  document.getElementById("achievements-output").innerText = JSON.stringify(data, null, 2);
+}
+
+// Load leaderboard
+async function loadLeaderboard() {
+  const res = await fetch("http://127.0.0.1:5001/leaderboards/global");
+  const data = await res.json();
+  document.getElementById("leaderboard-output").innerText = JSON.stringify(data, null, 2);
+}
+
+// Load rewards
+async function loadRewards() {
+  const res = await fetch("http://127.0.0.1:5001/rewards/available");
+  const data = await res.json();
+  document.getElementById("rewards-output").innerText = JSON.stringify(data, null, 2);
+}
+
+// Load social activity feed
+async function loadSocialFeed() {
+  const res = await fetch("http://127.0.0.1:5001/social/activity-feed");
+  const data = await res.json();
+  document.getElementById("social-output").innerText = JSON.stringify(data, null, 2);
+}
+
 let presets = {};
 
-// Load presets from external file
+// Load presets
 fetch("/static/presets.txt")
   .then(res => res.text())
-  .then(text => {
-    try {
-      presets = JSON.parse(text);
-    } catch (e) {
-      console.error("JSON parse error:", e);
-      console.log("Raw text received:", text);
-      alert("Error: presets.txt is not valid JSON. Check console for details.");
-      return;
-    }
+  .then(txt => { presets = JSON.parse(txt); })
+  .catch(err => console.error("Failed to load presets", err));
 
-    const select = document.getElementById("action");
-    Object.keys(presets).forEach(key => {
-      const option = document.createElement("option");
-      option.value = key;
-      option.text = key.replace(/_/g, " ");
-      select.add(option);
-    });
-  })
-  .catch(err => {
-    console.error("Failed to load presets:", err);
-    alert("Failed to load presets file. See console for details.");
-  });
+  // Send request by name
+async function sendRequest(name) {
+  if (!presets[name]) return alert("Preset not found: " + name);
+  const preset = presets[name];
+  let options = { method: preset.method };
 
-// Set preset values
-function setPreset() {
-  const action = document.getElementById("action").value;
-  if (action && presets[action]) {
-    const preset = presets[action];
-    document.getElementById("url").value = preset.url;
-    document.getElementById("method").value = preset.method;
-    document.getElementById("body").value = preset.body;
-  }
-}
-
-// Send request
-async function sendRequest() {
-  const url = document.getElementById("url").value;
-  const method = document.getElementById("method").value;
-  let body = document.getElementById("body").value;
-
-  const options = { method };
-  if (method !== "GET") {
-    try { body = JSON.parse(body); } catch (e) { alert("Invalid JSON in request body"); return; }
+  if (preset.method !== "GET") {
     options.headers = { "Content-Type": "application/json" };
-    options.body = JSON.stringify(body);
+    options.body = preset.body;
   }
-
   try {
-    const res = await fetch(url, options);
-    const text = await res.text();
-    let data;
-    try { data = JSON.parse(text); } catch { data = text; }
-    document.getElementById("status").innerText = res.status;
-    document.getElementById("response").innerText = JSON.stringify(data, null, 2);
+    const res = await fetch(preset.url, options);
+    const txt = await res.text();
+    let data; try { data = JSON.parse(txt); } catch { data = txt; }
+    const target = document.querySelector(`#${name.split("_")[0]}-output`);
+    if (target) target.innerText = JSON.stringify(data, null, 2);
   } catch (err) {
-    document.getElementById("status").innerText = "Error";
-    document.getElementById("response").innerText = err;
+    alert("Error: " + err);
   }
 }
+  
 </script>
 </body>
 </html>
