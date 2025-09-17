@@ -38,9 +38,17 @@ let presets = {};
 
 // Load presets from external file
 fetch("/static/presets.txt")
-  .then(res => res.json())
-  .then(data => {
-    presets = data;
+  .then(res => res.text())
+  .then(text => {
+    try {
+      presets = JSON.parse(text);
+    } catch (e) {
+      console.error("JSON parse error:", e);
+      console.log("Raw text received:", text);
+      alert("Error: presets.txt is not valid JSON. Check console for details.");
+      return;
+    }
+
     const select = document.getElementById("action");
     Object.keys(presets).forEach(key => {
       const option = document.createElement("option");
@@ -49,7 +57,10 @@ fetch("/static/presets.txt")
       select.add(option);
     });
   })
-  .catch(err => console.error("Failed to load presets:", err));
+  .catch(err => {
+    console.error("Failed to load presets:", err);
+    alert("Failed to load presets file. See console for details.");
+  });
 
 // Set preset values
 function setPreset() {
@@ -70,7 +81,7 @@ async function sendRequest() {
 
   const options = { method };
   if (method !== "GET") {
-    try { body = JSON.parse(body); } catch (e) { alert("Invalid JSON"); return; }
+    try { body = JSON.parse(body); } catch (e) { alert("Invalid JSON in request body"); return; }
     options.headers = { "Content-Type": "application/json" };
     options.body = JSON.stringify(body);
   }

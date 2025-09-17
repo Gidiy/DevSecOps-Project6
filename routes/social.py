@@ -1,102 +1,97 @@
 from flask import Blueprint, jsonify, request
-from utils.utils import movies, L
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 social_bp = Blueprint('social_bp', __name__)
 
+# -------------------------------
+# Social / Rewards-related Routes
+# -------------------------------
 
-
-@social_bp.get("/available")  # תגמולים זמינים
+@social_bp.get("/available")  
+# GET http://127.0.0.1:5001/social/available
 def social_available():
-    # TODO: implement logic
-    return 200
+    """List available rewards."""
+    rewards = [
+        {"id": 1, "name": "Coffee Voucher", "points": 50},
+        {"id": 2, "name": "Amazon Gift Card", "points": 200},
+    ]
+    return jsonify({"status": "success", "rewards": rewards}), 200
 
-@social_bp.post("/redeem")  # מימוש נקודות עבור תגמולים
+
+@social_bp.post("/redeem")  
+# POST http://127.0.0.1:5001/social/redeem
+# Body: { "reward_id": 1 }
+@jwt_required(optional=True)
 def social_redeem():
-    # TODO: implement logic
-    return 200
+    """Redeem points for a reward."""
+    data = request.json or {}
+    reward_id = data.get("reward_id")
 
-@social_bp.get("/my-points")  # בדיקת נקודות אישיות
+    if not reward_id:
+        return jsonify({"status": "error", "message": "reward_id is required"}), 400
+
+    user = get_jwt_identity()
+    return jsonify({"status": "success", "reward_id": reward_id, "redeemed_by": user}), 200
+
+
+@social_bp.get("/my-points")  
+# GET http://127.0.0.1:5001/social/my-points
+@jwt_required(optional=True)
 def social_my_points():
-    # TODO: implement logic
-    return jsonify({'status': 'success'}), 200
+    """Check personal points balance."""
+    user = get_jwt_identity()
+    return jsonify({"status": "success", "user": user, "points": 120}), 200
 
-@social_bp.post("/donate-points")  # תרומת נקודות לצדקה
+
+@social_bp.post("/donate-points")  
+# POST http://127.0.0.1:5001/social/donate-points
+# Body: { "amount": 50, "charity": "Red Cross" }
+@jwt_required(optional=True)
 def social_donate_points():
-    # TODO: implement logic
-    return 200
+    """Donate points to charity."""
+    data = request.json or {}
+    amount = data.get("amount")
+    charity = data.get("charity")
 
-@social_bp.get("/store")  # אחסון תגמולים במשרד
+    if not amount or not charity:
+        return jsonify({"status": "error", "message": "amount and charity are required"}), 400
+
+    user = get_jwt_identity()
+    return jsonify({
+        "status": "success",
+        "donated": amount,
+        "charity": charity,
+        "donated_by": user
+    }), 200
+
+
+@social_bp.get("/store")  
+# GET http://127.0.0.1:5001/social/store
 def social_store():
-    # TODO: implement logic
-    return jsonify({'status': 'success'}), 200
+    """Get rewards available in the office store."""
+    store_items = [
+        {"id": 101, "name": "Team Lunch", "points": 300},
+        {"id": 102, "name": "Office Chair Upgrade", "points": 500},
+    ]
+    return jsonify({"status": "success", "store": store_items}), 200
 
-@social_bp.post("/suggest")  # הצעת תגמולים חדשים
+
+@social_bp.post("/suggest")  
+# POST http://127.0.0.1:5001/social/suggest
+# Body: { "name": "Gym Membership", "points": 400 }
+@jwt_required(optional=True)
 def social_suggest():
-    # TODO: implement logic
-    return 200
+    """Suggest a new reward."""
+    data = request.json or {}
+    name = data.get("name")
+    points = data.get("points")
 
+    if not name or not points:
+        return jsonify({"status": "error", "message": "name and points are required"}), 400
 
-'''
-@social_bp.get('/') #postman - http://127.0.0.1:5001/games/
-def get_all():
-    return jsonify(movies)
-
-
-@social_bp.get('/<int:id>')#postman - http://127.0.0.1:5001/games/1
-@jwt_required()
-def get_by_id(id):
-    for movie in movies:
-        if movie.get('id') == id:
-            print(get_jwt_identity())
-            return jsonify(movie)
-    return jsonify({'status': 'not found'}), 404
-
-
-@social_bp.post('/') #postman - http://127.0.0.1:5001/games/ body(raw) - {"name": "spiderman11", "rate": 3.9 }-only if has "name"
-#@jwt_required()
-def add_game():
-    new_game = request.json
-    if not new_game or 'name' not in new_game:
-        return jsonify({'status': 'bad request', 'message': 'name is required'}), 400
-    new_id = max([game['id'] for game in games], default=0) + 1
-    new_game['id'] = new_id
-    games.append(new_game)
-    L.log(f'Game added {new_game["name"]}')
-    return jsonify(new_game), 201
-
-
-@social_bp.put('/<int:id>')#postman - http://127.0.0.1:5001/games/1 body(raw) - {  "name": "bax", "rate": 3.0 }
-def update_game(id):
-    update_data = request.json
-
-    if not update_data:
-        return jsonify({'status': 'bad request', 'message': 'no data provided'}), 400
-
-    for movie in movies:
-        if game.get('id') == id:
-            if 'name' in update_data:
-                movie['name'] = update_data['name']
-            if 'rate' in update_data:
-                movie['rate'] = update_data['rate']
-            return jsonify(movie)
-
-    return jsonify({'status': 'not found'}), 404
-
-
-@social_bp.delete('/<int:id>')#postman - http://127.0.0.1:5001/movies/1 
-def delete_by_id(id):
-    for i, movie in enumerate(movies):
-        if movie.get('id') == id:
-            deleted_movie = movies.pop(i)
-            return jsonify({'status': 'deleted', 'movie': deleted_movie})
-
-    return jsonify({'status': 'not found'}), 404
-
-
-@social_bp.delete('/')#postman - http://127.0.0.1:5001/movies
-def delete_all():
-    deleted_count = len(movies)
-    movies.clear()#return []
-    return jsonify({'status': 'deleted', 'count': deleted_count})
-    '''
+    user = get_jwt_identity()
+    return jsonify({
+        "status": "success",
+        "suggested_reward": {"name": name, "points": points},
+        "suggested_by": user
+    }), 201
