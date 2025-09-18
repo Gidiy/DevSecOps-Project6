@@ -21,9 +21,10 @@
       <hr>
       <button onclick="showSection('games-section')" class="w-full bg-gray-200 py-2 rounded">🎮 Competitions</button>
       <button onclick="showSection('achievements-section')" class="w-full bg-gray-200 py-2 rounded">🏆 Achievements</button>
-      <button onclick="showSection('leaderboards-section')" class="w-full bg-gray-200 py-2 rounded">📊 Leaderboards</button>
+      <button onclick="showSection('competitions-section')" class="w-full bg-gray-200 py-2 rounded">📊 Competitions</button>
       <button onclick="showSection('rewards-section')" class="w-full bg-gray-200 py-2 rounded">🎁 Rewards</button>
       <button onclick="showSection('social-section')" class="w-full bg-gray-200 py-2 rounded">👥 Social</button>
+      <button onclick="showSection('leaderboards-section')" class="w-full bg-gray-200 py-2 rounded">👥 Leaderboards</button>
     </aside>
 
     <!-- Main content -->
@@ -45,9 +46,9 @@
         <button onclick="registerUser()" class="bg-green-600 text-white px-4 py-2 rounded">Register</button>
       </section>
 
-      <!-- Competitions -->
+      <!-- Games -->
       <section id="games-section" class="hidden">
-        <h2 class="text-2xl mb-4">Competitions</h2>
+        <h2 class="text-2xl mb-4">Games</h2>
         <div class="space-x-2">
           <button onclick="sendRequest('games_create')" class="bg-blue-500 text-white px-3 py-2 rounded">Create</button>
           <button onclick="sendRequest('games_active')" class="bg-gray-500 text-white px-3 py-2 rounded">Active</button>
@@ -84,6 +85,20 @@
           <button onclick="sendRequest('leaderboards_predictions')" class="bg-pink-500 text-white px-3 py-2 rounded">Predictions</button>
         </div>
         <pre id="leaderboards-output" class="bg-white p-3 mt-3 rounded shadow"></pre>
+      </section>
+
+      <!-- Competitions -->
+      <section id="competitions-section" class="hidden">
+        <h2 class="text-2xl mb-4">Competitions</h2>
+        <div class="space-x-2">
+          <button onclick="sendRequest('competitions_code_quality')" class="bg-blue-500 text-white px-3 py-2 rounded">code quality</button>
+          <button onclick="sendRequest('competitions_learning')" class="bg-green-500 text-white px-3 py-2 rounded">learning</button>
+          <button onclick="sendRequest('competitions_fitness')" class="bg-yellow-500 text-white px-3 py-2 rounded">fitness</button>
+          <button onclick="sendRequest('competitions_sustainability')" class="bg-purple-500 text-white px-3 py-2 rounded">sustainability</button>
+          <button onclick="sendRequest('competitions_creativity')" class="bg-pink-500 text-white px-3 py-2 rounded">creativity</button>
+          <button onclick="sendRequest('competitions_team_building')" class="bg-pink-500 text-white px-3 py-2 rounded">team building</button>
+        </div>
+        <pre id="competitions-output" class="bg-white p-3 mt-3 rounded shadow"></pre>
       </section>
 
       <!-- Rewards -->
