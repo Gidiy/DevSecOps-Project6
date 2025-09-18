@@ -28,6 +28,7 @@
 
     <!-- Main content -->
     <main class="flex-1 p-6">
+
       <!-- Login -->
       <section id="login-section" class="hidden">
         <h2 class="text-2xl mb-4">Login</h2>
@@ -45,89 +46,110 @@
       </section>
 
       <!-- Competitions -->
-        <section id="games-section" class="hidden">
-      <h2 class="text-2xl mb-4">Competitions</h2>
-      <div class="space-x-2">
-        <button onclick="sendRequest('games_create')" class="bg-blue-500 text-white px-3 py-2 rounded">Create</button>
-        <button onclick="sendRequest('games_active')" class="bg-gray-500 text-white px-3 py-2 rounded">Active</button>
-        <button onclick="sendRequest('games_join')" class="bg-green-500 text-white px-3 py-2 rounded">Join</button>
-        <button onclick="sendRequest('games_progress_update')" class="bg-yellow-500 text-white px-3 py-2 rounded">Update Progress</button>
-        <button onclick="sendRequest('games_custom_create')" class="bg-purple-500 text-white px-3 py-2 rounded">Custom Rules</button>
-      </div>
-      <pre id="games-output" class="bg-white p-3 mt-3 rounded shadow"></pre>
-    </section>
+      <section id="games-section" class="hidden">
+        <h2 class="text-2xl mb-4">Competitions</h2>
+        <div class="space-x-2">
+          <button onclick="sendRequest('games_create')" class="bg-blue-500 text-white px-3 py-2 rounded">Create</button>
+          <button onclick="sendRequest('games_active')" class="bg-gray-500 text-white px-3 py-2 rounded">Active</button>
+          <button onclick="sendRequest('games_join')" class="bg-green-500 text-white px-3 py-2 rounded">Join</button>
+          <button onclick="sendRequest('games_progress_update')" class="bg-yellow-500 text-white px-3 py-2 rounded">Update Progress</button>
+          <button onclick="sendRequest('games_custom_create')" class="bg-purple-500 text-white px-3 py-2 rounded">Custom Rules</button>
+        </div>
+        <pre id="games-output" class="bg-white p-3 mt-3 rounded shadow"></pre>
+      </section>
 
       <!-- Achievements -->
-<section id="achievements-section" class="hidden">
-      <h2 class="text-2xl mb-4">Achievements</h2>
-      <div class="space-x-2">
-        <button onclick="sendRequest('achievements_available')" class="bg-blue-500 text-white px-3 py-2 rounded">Available</button>
-        <button onclick="sendRequest('achievements_unlock')" class="bg-green-500 text-white px-3 py-2 rounded">Unlock</button>
-        <button onclick="sendRequest('achievements_my_progress')" class="bg-yellow-500 text-white px-3 py-2 rounded">My Progress</button>
-        <button onclick="sendRequest('achievements_create_custom')" class="bg-purple-500 text-white px-3 py-2 rounded">Custom</button>
-        <button onclick="sendRequest('achievements_rare')" class="bg-pink-500 text-white px-3 py-2 rounded">Rare</button>
-        <button onclick="sendRequest('achievements_share')" class="bg-indigo-500 text-white px-3 py-2 rounded">Share</button>
-      </div>
-      <pre id="achievements-output" class="bg-white p-3 mt-3 rounded shadow"></pre>
-      <canvas id="achievementsChart" class="mt-4"></canvas>
-    </section>
+      <section id="achievements-section" class="hidden">
+        <h2 class="text-2xl mb-4">Achievements</h2>
+        <div class="space-x-2">
+          <button onclick="sendRequest('achievements_available')" class="bg-blue-500 text-white px-3 py-2 rounded">Available</button>
+          <button onclick="sendRequest('achievements_unlock')" class="bg-green-500 text-white px-3 py-2 rounded">Unlock</button>
+          <button onclick="sendRequest('achievements_my_progress')" class="bg-yellow-500 text-white px-3 py-2 rounded">My Progress</button>
+          <button onclick="sendRequest('achievements_create_custom')" class="bg-purple-500 text-white px-3 py-2 rounded">Custom</button>
+          <button onclick="sendRequest('achievements_rare')" class="bg-pink-500 text-white px-3 py-2 rounded">Rare</button>
+          <button onclick="sendRequest('achievements_share')" class="bg-indigo-500 text-white px-3 py-2 rounded">Share</button>
+        </div>
+        <pre id="achievements-output" class="bg-white p-3 mt-3 rounded shadow"></pre>
+        <canvas id="achievementsChart" class="mt-4"></canvas>
+      </section>
 
       <!-- Leaderboards -->
-       <section id="leaderboards-section" class="hidden">
-      <h2 class="text-2xl mb-4">Leaderboards</h2>
-      <div class="space-x-2">
-        <button onclick="sendRequest('leaderboards_global')" class="bg-blue-500 text-white px-3 py-2 rounded">Global</button>
-        <button onclick="sendRequest('leaderboards_team')" class="bg-green-500 text-white px-3 py-2 rounded">Team</button>
-        <button onclick="sendRequest('leaderboards_monthly')" class="bg-yellow-500 text-white px-3 py-2 rounded">Monthly</button>
-        <button onclick="sendRequest('leaderboards_hall_of_fame')" class="bg-purple-500 text-white px-3 py-2 rounded">Hall of Fame</button>
-        <button onclick="sendRequest('leaderboards_predictions')" class="bg-pink-500 text-white px-3 py-2 rounded">Predictions</button>
-      </div>
-      <pre id="leaderboards-output" class="bg-white p-3 mt-3 rounded shadow"></pre>
-    </section>
+      <section id="leaderboards-section" class="hidden">
+        <h2 class="text-2xl mb-4">Leaderboards</h2>
+        <div class="space-x-2">
+          <button onclick="sendRequest('leaderboards_global')" class="bg-blue-500 text-white px-3 py-2 rounded">Global</button>
+          <button onclick="sendRequest('leaderboards_team')" class="bg-green-500 text-white px-3 py-2 rounded">Team</button>
+          <button onclick="sendRequest('leaderboards_monthly')" class="bg-yellow-500 text-white px-3 py-2 rounded">Monthly</button>
+          <button onclick="sendRequest('leaderboards_hall_of_fame')" class="bg-purple-500 text-white px-3 py-2 rounded">Hall of Fame</button>
+          <button onclick="sendRequest('leaderboards_predictions')" class="bg-pink-500 text-white px-3 py-2 rounded">Predictions</button>
+        </div>
+        <pre id="leaderboards-output" class="bg-white p-3 mt-3 rounded shadow"></pre>
+      </section>
 
       <!-- Rewards -->
-     <section id="rewards-section" class="hidden">
-      <h2 class="text-2xl mb-4">Rewards</h2>
-      <div class="space-x-2">
-        <button onclick="sendRequest('rewards_teams_create')" class="bg-blue-500 text-white px-3 py-2 rounded">rewards teams create</button>
-        <button onclick="sendRequest('rewards_friends')" class="bg-green-500 text-white px-3 py-2 rounded">rewards friends</button>
-        <button onclick="sendRequest('rewards_challenges_send')" class="bg-yellow-500 text-white px-3 py-2 rounded">rewards challenges send</button>
-        <button onclick="sendRequest('rewards_activity_feed')" class="bg-purple-500 text-white px-3 py-2 rounded">rewards activity feed</button>
-        <button onclick="sendRequest('rewards_rivalries')" class="bg-pink-500 text-white px-3 py-2 rounded">rewards rivalries</button>
-      </div>
-      <pre id="rewards-output" class="bg-white p-3 mt-3 rounded shadow"></pre>
-    </section>
+      <section id="rewards-section" class="hidden">
+        <h2 class="text-2xl mb-4">Rewards</h2>
+        <div class="space-x-2">
+          <button onclick="sendRequest('rewards_teams_create')" class="bg-blue-500 text-white px-3 py-2 rounded">Teams Create</button>
+          <button onclick="sendRequest('rewards_friends')" class="bg-green-500 text-white px-3 py-2 rounded">Friends</button>
+          <button onclick="sendRequest('rewards_challenges_send')" class="bg-yellow-500 text-white px-3 py-2 rounded">Challenges</button>
+          <button onclick="sendRequest('rewards_activity_feed')" class="bg-purple-500 text-white px-3 py-2 rounded">Activity Feed</button>
+          <button onclick="sendRequest('rewards_rivalries')" class="bg-pink-500 text-white px-3 py-2 rounded">Rivalries</button>
+        </div>
+        <pre id="rewards-output" class="bg-white p-3 mt-3 rounded shadow"></pre>
+      </section>
 
       <!-- Social -->
       <section id="social-section" class="hidden">
-      <h2 class="text-2xl mb-4">Social</h2>
-      <div class="space-x-2">
-        <button onclick="sendRequest('social_available')" class="bg-blue-500 text-white px-3 py-2 rounded">social available</button>
-        <button onclick="sendRequest('social_redeem')" class="bg-green-500 text-white px-3 py-2 rounded">social redeem</button>
-        <button onclick="sendRequest('social_my_points')" class="bg-yellow-500 text-white px-3 py-2 rounded">social my points</button>
-        <button onclick="sendRequest('social_donate_points')" class="bg-purple-500 text-white px-3 py-2 rounded">social donate points</button>
-        <button onclick="sendRequest('social_store')" class="bg-pink-500 text-white px-3 py-2 rounded">social store</button>
-        <button onclick="sendRequest('social_suggest')" class="bg-indigo-500 text-white px-3 py-2 rounded">Rivalries</button>
-      </div>
-      <pre id="social-output" class="bg-white p-3 mt-3 rounded shadow"></pre>
-    </section>
+        <h2 class="text-2xl mb-4">Social</h2>
+        <div class="space-x-2">
+          <button onclick="sendRequest('social_available')" class="bg-blue-500 text-white px-3 py-2 rounded">Available</button>
+          <button onclick="sendRequest('social_redeem')" class="bg-green-500 text-white px-3 py-2 rounded">Redeem</button>
+          <button onclick="sendRequest('social_my_points')" class="bg-yellow-500 text-white px-3 py-2 rounded">My Points</button>
+          <button onclick="sendRequest('social_donate_points')" class="bg-purple-500 text-white px-3 py-2 rounded">Donate Points</button>
+          <button onclick="sendRequest('social_store')" class="bg-pink-500 text-white px-3 py-2 rounded">Store</button>
+          <button onclick="sendRequest('social_suggest')" class="bg-indigo-500 text-white px-3 py-2 rounded">Suggest</button>
+        </div>
+        <pre id="social-output" class="bg-white p-3 mt-3 rounded shadow"></pre>
+      </section>
     </main>
   </div>
 
 <script>
 let authToken = null;
+let presets = {};
 
-// Switch visible section
+// Section switcher
 function showSection(id) {
   document.querySelectorAll("main section").forEach(sec => sec.classList.add("hidden"));
   document.getElementById(id).classList.remove("hidden");
+}
+
+// JSON → table
+function jsonToTable(json) {
+  if (!json) return "<p>No data</p>";
+  if (typeof json === "string") return `<p>${json}</p>`;
+  if (!Array.isArray(json)) json = [json];
+
+  const headers = [...new Set(json.flatMap(obj => Object.keys(obj)))];
+  let table = `<table class="table-auto border-collapse border border-gray-300 w-full text-sm">
+    <thead class="bg-gray-100">
+      <tr>${headers.map(h => `<th class="border px-2 py-1">${h}</th>`).join("")}</tr>
+    </thead>
+    <tbody>
+      ${json.map(row => `
+        <tr>
+          ${headers.map(h => `<td class="border px-2 py-1">${row[h] ?? ""}</td>`).join("")}
+        </tr>`).join("")}
+    </tbody>
+  </table>`;
+  return table;
 }
 
 // Register user
 async function registerUser() {
   const username = document.getElementById("reg-username").value;
   const password = document.getElementById("reg-password").value;
-
   const res = await fetch("http://127.0.0.1:5001/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -141,7 +163,6 @@ async function registerUser() {
 async function loginUser() {
   const username = document.getElementById("login-username").value;
   const password = document.getElementById("login-password").value;
-
   const res = await fetch("http://127.0.0.1:5001/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -157,70 +178,105 @@ async function loginUser() {
   }
 }
 
-// Load competitions
-async function loadCompetitions() {
-  const res = await fetch("http://127.0.0.1:5001/games/active");
-  const data = await res.json();
-  document.getElementById("competitions-output").innerText = JSON.stringify(data, null, 2);
-}
-
-// Load achievements
-async function loadAchievements() {
-  const res = await fetch("http://127.0.0.1:5001/achievements/available");
-  const data = await res.json();
-  document.getElementById("achievements-output").innerText = JSON.stringify(data, null, 2);
-}
-
-// Load leaderboard
-async function loadLeaderboard() {
-  const res = await fetch("http://127.0.0.1:5001/leaderboards/global");
-  const data = await res.json();
-  document.getElementById("leaderboard-output").innerText = JSON.stringify(data, null, 2);
-}
-
-// Load rewards
-async function loadRewards() {
-  const res = await fetch("http://127.0.0.1:5001/rewards/available");
-  const data = await res.json();
-  document.getElementById("rewards-output").innerText = JSON.stringify(data, null, 2);
-}
-
-// Load social activity feed
-async function loadSocialFeed() {
-  const res = await fetch("http://127.0.0.1:5001/social/activity-feed");
-  const data = await res.json();
-  document.getElementById("social-output").innerText = JSON.stringify(data, null, 2);
-}
-
-let presets = {};
-
 // Load presets
 fetch("/static/presets.txt")
   .then(res => res.text())
   .then(txt => { presets = JSON.parse(txt); })
   .catch(err => console.error("Failed to load presets", err));
 
-  // Send request by name
-async function sendRequest(name) {
+// Send API request
+// Open editor panel
+function sendRequest(name) {
   if (!presets[name]) return alert("Preset not found: " + name);
-  const preset = presets[name];
-  let options = { method: preset.method };
+  currentPreset = presets[name];
+  currentPreset.name = name;
+  currentTarget = document.querySelector(`#${name.split("_")[0]}-output`);
 
-  if (preset.method !== "GET") {
-    options.headers = { "Content-Type": "application/json" };
-    options.body = preset.body;
-  }
-  try {
-    const res = await fetch(preset.url, options);
-    const txt = await res.text();
-    let data; try { data = JSON.parse(txt); } catch { data = txt; }
-    const target = document.querySelector(`#${name.split("_")[0]}-output`);
-    if (target) target.innerText = JSON.stringify(data, null, 2);
-  } catch (err) {
-    alert("Error: " + err);
+  if (["POST", "PUT", "PATCH", "DELETE"].includes(currentPreset.method.toUpperCase())) {
+    document.getElementById("request-title").innerText = `${currentPreset.method} ${name}`;
+    
+    // Build form fields from JSON body
+    let fieldsContainer = document.getElementById("request-fields");
+    fieldsContainer.innerHTML = "";
+    let bodyObj = {};
+    try { bodyObj = currentPreset.body ? JSON.parse(currentPreset.body) : {}; }
+    catch { bodyObj = {}; }
+
+    Object.entries(bodyObj).forEach(([key, value]) => {
+      let field = document.createElement("div");
+      field.className = "flex items-center gap-2";
+      field.innerHTML = `
+        <label class="w-1/3 font-semibold">${key}</label>
+        <input type="text" data-key="${key}" value="${value}" 
+          class="flex-1 border rounded px-2 py-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"/>
+      `;
+      fieldsContainer.appendChild(field);
+    });
+
+    document.getElementById("request-panel").classList.remove("hidden");
+  } else {
+    confirmRequest(); // auto send if no body is needed
   }
 }
-  
+
+
+// Close modal
+function closePanel() {
+  document.getElementById("request-panel").classList.add("hidden");
+  currentPreset = null;
+  currentTarget = null;
+}
+
+// Confirm and send
+async function confirmRequest() {
+  if (!currentPreset) return;
+
+  let options = { method: currentPreset.method };
+
+  if (["POST","PUT","PATCH","DELETE"].includes(currentPreset.method.toUpperCase())) {
+    options.headers = { "Content-Type": "application/json" };
+
+    let newBody = {};
+    document.querySelectorAll("#request-fields input").forEach(input => {
+      newBody[input.dataset.key] = input.value;
+    });
+
+    options.body = JSON.stringify(newBody);
+  }
+
+  try {
+    const res = await fetch(currentPreset.url, options);
+    const txt = await res.text();
+    let data; try { data = JSON.parse(txt); } catch { data = txt; }
+
+    if (currentTarget) {
+      currentTarget.innerHTML = (typeof data === "object") ? jsonToTable(data) : `<pre>${txt}</pre>`;
+    }
+  } catch (err) {
+    alert("Error: " + err);
+  } finally {
+    closePanel();
+  }
+}
+
 </script>
+<!-- Request Editor Panel -->
+<div id="request-panel" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="w-11/12 max-w-2xl p-6 border rounded-lg shadow bg-white">
+    <h2 id="request-title" class="text-lg font-bold mb-2">Request Editor</h2>
+    <p class="text-sm text-gray-600 mb-2">Edit the request body before sending:</p>
+
+    <div id="request-fields" class="space-y-2"></div>
+
+    <div class="flex justify-end gap-2 mt-3">
+      <button onclick="closePanel()" 
+        class="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300">Cancel</button>
+      <button onclick="confirmRequest()" 
+        class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">Send Request</button>
+    </div>
+  </div>
+</div>
+
+
 </body>
 </html>
