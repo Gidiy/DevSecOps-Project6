@@ -1,10 +1,13 @@
 יצירת סביבה וירטואלית
-
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-
+git clone https://github.com/Gidiy/DevSecOps-Project6.git - העתקת הפרוייקט למחשב
+cd DevSecOps-Project6-מעבר לתיקייה במחשב
+python -m venv .venv-יצירת סביבה וירטואלית
+.\.venv\Scripts\Activate.ps1-הפעלת הסביבה הוירטואלית
+python -m pip install --upgrade pip-הכנת מנהל ההרחבות להורדה
+python -m pip install -r requirements.txt- הורדת כל ההרחבות מתוך הקובץ
+python main.py - הרצת הפרוייקט
+ctrl + c - עצירת הפרוייקט
+deactivate - יציאה מהסביבה הוירטואלית
 
 קובץ .env חשוף כדי לאפשר הפעלה זמנית
 
