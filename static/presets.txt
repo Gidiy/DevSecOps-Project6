@@ -29,16 +29,6 @@
     "method": "POST",
     "body": "{\"name\":\"My Custom Achievement\",\"description\":\"ok?\"}"
   },
-  "achievements_rare": {
-    "url": "http://127.0.0.1:5001/achievements/rare",
-    "method": "GET",
-    "body": "{}"
-  },
-  "achievements_share": {
-    "url": "http://127.0.0.1:5001/achievements/share",
-    "method": "POST",
-    "body": "{\"achievement_id\":1}"
-  },
   "games_create": {
     "url": "http://127.0.0.1:5001/games/create",
     "method": "POST",

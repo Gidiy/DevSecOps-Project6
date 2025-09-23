@@ -5,7 +5,7 @@ from flask_jwt_extended import create_access_token
 from classes.user import User
 from utils.db import db
 from datetime import datetime
-
+from flask_jwt_extended import jwt_required, get_jwt_identity
 achievements_bp = Blueprint('achievements_bp', __name__)
 
 class Achievement(db.Model):
@@ -13,7 +13,6 @@ class Achievement(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False, unique=True)
     description = db.Column(db.Text, nullable=True)
-    rarity = db.Column(db.String(50), default='common')  # common/rare/epic/legendary
     points = db.Column(db.Integer, default=10)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -69,7 +68,7 @@ def achievements_unlock():
     return jsonify({'message': 'unlocked', 'achievement': _ser(a)}), 200
 
 @achievements_bp.get('/my-progress')  # view achievements progress # GET http://127.0.0.1:5001/achievements/my-progress
-#@jwt_required(optional=True)
+@jwt_required(optional=True)
 def achievements_my_progress():
     user_id = _uid_or_anon()
     unlocked = UserAchievement.query.filter_by(user_id=user_id).all()
@@ -97,19 +96,3 @@ def achievements_create_custom():
     db.session.add(a)
     db.session.commit()
     return jsonify(_ser(a)), 201
-
-@achievements_bp.get('/rare')  # view rare achievements # GET http://127.0.0.1:5001/achievements/rare
-def achievements_rare():
-    rare_set = ['rare', 'epic', 'legendary']
-    items = Achievement.query.filter(Achievement.rarity.in_(rare_set)).all()
-    return jsonify([_ser(a) for a in items]), 200
-
-@achievements_bp.post('/share')  # share achievements # POST http://127.0.0.1:5001/achievements/share - {"achievement_id":1}
-#@jwt_required(optional=True)
-def achievements_share():
-    data = request.get_json(silent=True) or {}
-    achievement_id = data.get('achievement_id')
-    if not achievement_id:
-        return jsonify({'error': 'achievement_id is required'}), 400
-    # In a real app this would publish to a social feed; for now return success.
-    return jsonify({'message': 'shared', 'achievement_id': achievement_id}), 200

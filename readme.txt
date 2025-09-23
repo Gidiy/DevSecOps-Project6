@@ -33,8 +33,6 @@ GET /api/achievements/available - צפייה בהישגים זמינים
 POST /api/achievements/unlock - פתיחת הישגים 
 GET /api/achievements/my-progress - התקדמות אישית בהישגים 
 POST /api/achievements/create-custom - יצירת הישגים מותאמים אישית 
-GET /api/achievements/rare - צפייה בהישגים נדירים 
-POST /api/achievements/share - שיתוף הישגים קטגוריות תחרות 
 קטגוריות משחק
 POST /api/competitions/code-quality - תחרויות איכות קוד 
 POST /api/competitions/learning - אתגרי למידה 
