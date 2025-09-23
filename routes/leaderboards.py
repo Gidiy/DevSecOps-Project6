@@ -6,10 +6,8 @@ leaderboards_bp = Blueprint('leaderboards_bp', __name__)
 
 # ---------- HELPERS ----------
 def _uid_or_anon() -> str:
-    try:
-        return get_jwt_identity() or "anonymous"
-    except Exception:
-        return "anonymous"
+    user = get_jwt_identity()
+    return user if user else 'anonymous'
 
 
 # ---------- ROUTES ----------

@@ -28,10 +28,8 @@ class UserAchievement(db.Model):
 # -----Helpers-----
 
 def _uid_or_anon() -> str:
-    try:
-        return get_jwt_identity() or 'anonymous'
-    except Exception:
-        return 'anonymous'
+    user = get_jwt_identity()
+    return user if user else 'anonymous'
 
 def _ser(a: Achievement):
     return {

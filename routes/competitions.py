@@ -18,10 +18,8 @@ class UserCompetition(db.Model):
 
 # ---------- HELPERS ----------
 def _uid_or_anon() -> str:
-    try:
-        return get_jwt_identity() or "anonymous"
-    except Exception:
-        return "anonymous"
+    user = get_jwt_identity()
+    return user if user else 'anonymous'
 
 def _ser(c: Competition):
     return {

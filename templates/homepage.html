@@ -19,7 +19,7 @@
       <button onclick="showSection('login-section')" class="w-full bg-blue-500 text-white py-2 rounded">🔑 Login</button>
       <button onclick="showSection('register-section')" class="w-full bg-green-500 text-white py-2 rounded">📝 Register</button>
       <hr>
-      <button onclick="showSection('games-section')" class="w-full bg-gray-200 py-2 rounded">🎮 Competitions</button>
+      <button onclick="showSection('games-section')" class="w-full bg-gray-200 py-2 rounded">🎮 games</button>
       <button onclick="showSection('achievements-section')" class="w-full bg-gray-200 py-2 rounded">🏆 Achievements</button>
       <button onclick="showSection('competitions-section')" class="w-full bg-gray-200 py-2 rounded">📊 Competitions</button>
       <button onclick="showSection('rewards-section')" class="w-full bg-gray-200 py-2 rounded">🎁 Rewards</button>
@@ -185,7 +185,7 @@ async function loginUser() {
   });
   const data = await res.json();
   if (res.ok) {
-    authToken = data.token || "session";
+    authToken = data.access_token; // <-- Save the JWT token
     document.getElementById("user-status").innerText = "Logged in as " + username;
     alert("Login successful!");
   } else {
@@ -248,14 +248,16 @@ async function confirmRequest() {
 
   let options = { method: currentPreset.method };
 
-  if (["POST","PUT","PATCH","DELETE"].includes(currentPreset.method.toUpperCase())) {
-    options.headers = { "Content-Type": "application/json" };
+  options.headers = { "Content-Type": "application/json" };
+  if (authToken) {
+    options.headers["Authorization"] = "Bearer " + authToken;
+  }
 
+  if (["POST","PUT","PATCH","DELETE"].includes(currentPreset.method.toUpperCase())) {
     let newBody = {};
     document.querySelectorAll("#request-fields input").forEach(input => {
       newBody[input.dataset.key] = input.value;
     });
-
     options.body = JSON.stringify(newBody);
   }
 
