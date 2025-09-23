@@ -14,6 +14,9 @@ from utils.db import db  # Import from the new file
 import os
 from dotenv import load_dotenv
 from datetime import timedelta
+from classes.user import *
+from routes.games import Competition, Participation,Game
+from routes.achievements import Achievement, UserAchievement
 
 load_dotenv()
 
@@ -46,10 +49,34 @@ app.register_blueprint(leaderboards_bp, url_prefix='/leaderboards')
 app.register_blueprint(rewards_bp, url_prefix='/rewards')
 app.register_blueprint(social_bp, url_prefix='/social')
 
-
-@app.route('/') #postman - http://127.0.0.1:5001/
+@app.route("/")
 def homepage():
-    return render_template("homepage.html")
+    # players + points + competition
+    players = (
+        db.session.query(
+            User.username, 
+            Participation.competition_id,
+            Competition.title, 
+            Participation.progress
+        )
+        .join(Participation, User.username == Participation.user_id)
+        .join(Competition, Competition.id == Participation.competition_id)
+        .all()
+    )
+
+    # competitions
+    competitions = Competition.query.all()
+
+    # כל ה-games עם rules_json
+    games = Game.query.all()
+
+    return render_template(
+        "homepage.html", 
+        players=players, 
+        competitions=competitions,
+        games=games
+    )
+
 
 
 if __name__ == '__main__':
