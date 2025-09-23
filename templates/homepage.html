@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Gamification Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  
 </head>
 <body class="bg-gray-100 font-sans">
 
@@ -16,6 +17,7 @@
   <div class="flex">
     <!-- Sidebar -->
     <aside class="w-64 bg-white shadow-lg min-h-screen p-4 space-y-4">
+      <button onclick="showSection('home-section')" class="w-full bg-blue-500 text-white py-2 rounded">🏠 home</button>
       <button onclick="showSection('login-section')" class="w-full bg-blue-500 text-white py-2 rounded">🔑 Login</button>
       <button onclick="showSection('register-section')" class="w-full bg-green-500 text-white py-2 rounded">📝 Register</button>
       <hr>
@@ -31,7 +33,7 @@
     <main class="flex-1 p-6">
 
 
-      <section class="mb-6">
+      <section id="home-section" class="mb-6">
   <h2 class="text-2xl font-bold mb-4">Welcome to the Gamification Platform</h2>
   <p class="text-gray-700 mb-6">
     Use the sidebar to navigate through different sections. Start by logging in or registering a new account.
@@ -109,7 +111,7 @@
           <button onclick="sendRequest('games_active')" class="bg-gray-500 text-white px-3 py-2 rounded">Active</button>
           <button onclick="sendRequest('games_join')" class="bg-green-500 text-white px-3 py-2 rounded">Join</button>
           <button onclick="sendRequest('games_progress_update')" class="bg-yellow-500 text-white px-3 py-2 rounded">Update Progress</button>
-          <button onclick="sendRequest('games_custom_create')" class="bg-purple-500 text-white px-3 py-2 rounded">Custom Rules</button>
+          <button onclick="sendRequest('games_custom_create')" class="bg-purple-500 text-white px-3 py-2 rounded">Custom Rules-name must not exist</button>
         </div>
         <pre id="games-output" class="bg-white p-3 mt-3 rounded shadow"></pre>
       </section>
