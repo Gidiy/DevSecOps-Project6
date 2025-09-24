@@ -13,7 +13,7 @@ class Achievement(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False, unique=True)
     description = db.Column(db.Text, nullable=True)
-    points = db.Column(db.Integer, default=10)
+    locked = db.Column(db.String(20), default="locked") 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class UserAchievement(db.Model):
@@ -35,21 +35,18 @@ def _ser(a: Achievement):
         'id': a.id,
         'name': a.name,
         'description': a.description,
-        'rarity': a.rarity,
-        'points': a.points
+        'locked': a.locked
     }
 
 @achievements_bp.get('/available')  # view available achievements # GET http://127.0.0.1:5001/achievements/available
 def achievements_available():
-    rarity = request.args.get('rarity')
+
     q = Achievement.query
-    if rarity:
-        q = q.filter_by(rarity=rarity)
-    items = q.order_by(Achievement.points.desc(), Achievement.name.asc()).all()
+    items = q.order_by(Achievement.locked.desc(), Achievement.name.asc()).all()
     return jsonify([_ser(a) for a in items]), 200
 
-@achievements_bp.post('/unlock')  # unlock achievements # POST http://127.0.0.1:5001/achievements/unlock - {"achievement_id":1}
-#@jwt_required(optional=True)
+@achievements_bp.post('/unlock')  # unlock achievements
+@jwt_required(optional=True)
 def achievements_unlock():
     data = request.get_json(silent=True) or {}
     achievement_id = data.get('achievement_id')
@@ -60,12 +57,17 @@ def achievements_unlock():
     if not a:
         return jsonify({'error': 'achievement not found'}), 404
 
+    # עדכון הערך ל-unlocked
+    a.locked = "unlocked"
+
     user_id = _uid_or_anon()
     ua = UserAchievement(user_id=user_id, achievement_id=a.id)
     db.session.add(ua)
     db.session.commit()
+
     L.log(f'Achievement unlocked by {user_id}: {a.name}')
-    return jsonify({'message': 'unlocked', 'achievement': _ser(a)}), 200
+    return jsonify({'message': 'unlocked', 'achievement': a.name}), 200
+
 
 @achievements_bp.get('/my-progress')  # view achievements progress # GET http://127.0.0.1:5001/achievements/my-progress
 @jwt_required(optional=True)
@@ -90,8 +92,7 @@ def achievements_create_custom():
     a = Achievement(
         name=name,
         description=data.get('description'),
-        rarity=data.get('rarity', 'common'),
-        points=int(data.get('points', 10))
+        locked=data.get('locked', 'locked')
     )
     db.session.add(a)
     db.session.commit()

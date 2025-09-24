@@ -27,7 +27,7 @@
   "achievements_create_custom": {
     "url": "http://127.0.0.1:5001/achievements/create-custom",
     "method": "POST",
-    "body": "{\"name\":\"My Custom Achievement\",\"description\":\"ok?\"}"
+    "body": "{\"name\":\"שלב\",\"description\":\"10\"}"
   },
   "games_create": {
     "url": "http://127.0.0.1:5001/games/create",
