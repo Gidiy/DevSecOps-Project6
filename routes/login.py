@@ -14,7 +14,7 @@ users_db = {}
 @login_bp.post('/register') #postman - http://127.0.0.1:5001/register - {"username":"gilad","password":123}
 def register_user():
     """Endpoint to register a new user."""
-    data = request.json
+    data = request.get_json(silent=True) or {}
     username = data.get('username')
     password = data.get('password')
     
@@ -38,7 +38,7 @@ def register_user():
 @login_bp.post('/login')#postman - http://127.0.0.1:5001/login - {"username":"gilad","password":123}
 def login_user():
     """Endpoint for user login."""
-    data = request.json
+    data = request.get_json(silent=True) or {}
     username = data.get('username')
     password = data.get('password')
 

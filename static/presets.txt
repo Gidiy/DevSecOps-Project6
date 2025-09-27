@@ -27,12 +27,12 @@
   "achievements_create_custom": {
     "url": "http://127.0.0.1:5001/achievements/create-custom",
     "method": "POST",
-    "body": "{\"name\":\"שלב\",\"description\":\"10\"}"
+    "body": "{\"name\":\"\",\"description\":\"\",\"rarity\":\"common\"}"
   },
   "games_create": {
     "url": "http://127.0.0.1:5001/games/create",
     "method": "POST",
-    "body": "{\"title\":\"Chess Championship\",\"description\":\"Online chess tournament\",\"start_at\":\"2025-09-20T10:00:00\",\"end_at\":\"2025-09-21T18:00:00\",\"is_active\":true}"
+    "body": "{\"title\":\"\",\"description\":\"\",\"start_at\":\"\",\"end_at\":\"\",\"is_active\":true}"
   },
   "games_active": {
     "url": "http://127.0.0.1:5001/games/active",
@@ -47,17 +47,12 @@
   "games_progress_update": {
     "url": "http://127.0.0.1:5001/games/progress/update",
     "method": "PUT",
-    "body": "{\"competition_id\":1,\"delta\":10}"
+    "body": "{\"competition_id\":\"\",\"delta\":\"\"}"
   },
   "games_rules_update": {
     "url": "http://127.0.0.1:5001/games/rules/update",
     "method": "GET",
     "body": "{}"
-  },
-  "games_custom_create": {
-    "url": "http://127.0.0.1:5001/games/custom/create",
-    "method": "POST",
-    "body": "{\"name\":\"Math Quiz\",\"rules\":{\"questions\":20,\"time_per_question\":\"15s\"}}"
   },
   "competitions_code_quality": {
     "url": "http://127.0.0.1:5001/competitions/code-quality",
@@ -89,6 +84,36 @@
     "method": "POST",
     "body": "{}"
   },
+  "competitions_joined": {
+    "url": "http://127.0.0.1:5001/competitions/joined",
+    "method": "GET",
+    "body": "{}"
+  },
+  "competitions_my_competitions": {
+    "url": "http://127.0.0.1:5001/competitions/my-competitions",
+    "method": "GET",
+    "body": "{}"
+  },
+  "competitions_all": {
+    "url": "http://127.0.0.1:5001/competitions/all",
+    "method": "GET",
+    "body": "{}"
+  },
+  "competitions_join": {
+    "url": "http://127.0.0.1:5001/competitions/join",
+    "method": "POST",
+    "body": "{\"competition_id\":\"\"}"
+  },
+  "competitions_leave": {
+    "url": "http://127.0.0.1:5001/competitions/leave",
+    "method": "DELETE",
+    "body": "{\"competition_id\":\"\"}"
+  },
+  "competitions_remove": {
+    "url": "http://127.0.0.1:5001/competitions/remove",
+    "method": "DELETE",
+    "body": "{\"competition_id\":\"\"}"
+  },
   "leaderboards_global": {
     "url": "http://127.0.0.1:5001/leaderboards/global",
     "method": "GET",
@@ -112,66 +137,116 @@
   "leaderboards_predictions": {
     "url": "http://127.0.0.1:5001/leaderboards/predictions",
     "method": "POST",
-    "body": "{\"prediction\":\"Alice will win the Code Quality Challenge\"}"
+    "body": "{\"prediction\":\"\"}"
   },
-  "rewards_teams_create": {
-    "url": "http://127.0.0.1:5001/rewards/teams/create",
-    "method": "POST",
-    "body": "{\"team_name\":\"Winners\",\"members\":[\"alice\",\"bob\"]}"
-  },
-  "rewards_friends": {
-    "url": "http://127.0.0.1:5001/rewards/friends",
+  "leaderboards_predictions_view": {
+    "url": "http://127.0.0.1:5001/leaderboards/predictions",
     "method": "GET",
     "body": "{}"
   },
-  "rewards_challenges_send": {
-    "url": "http://127.0.0.1:5001/rewards/challenges/send",
-    "method": "POST",
-    "body": "{\"to\":\"alice\",\"challenge\":\"Push-up contest\"}"
+  "leaderboards_predictions_remove": {
+    "url": "http://127.0.0.1:5001/leaderboards/predictions/remove",
+    "method": "DELETE",
+    "body": "{\"id\":1}"
   },
-  "rewards_activity_feed": {
-    "url": "http://127.0.0.1:5001/rewards/activity-feed",
+  "leaderboards_add": {
+    "url": "http://127.0.0.1:5001/leaderboards/add",
+    "method": "POST",
+    "body": "{\"user\":\"\",\"points\":\"\",\"board\":\"global\"}"
+  },
+  "leaderboards_remove": {
+    "url": "http://127.0.0.1:5001/leaderboards/remove",
+    "method": "DELETE",
+    "body": "{\"id\":\"\"}"
+  },
+  "games_competition_remove": {
+    "url": "http://127.0.0.1:5001/games/competition/remove",
+    "method": "DELETE",
+    "body": "{\"id\":\"\"}"
+  },
+  "games_participation_remove": {
+    "url": "http://127.0.0.1:5001/games/participation/remove",
+    "method": "DELETE",
+    "body": "{\"id\":\"\"}"
+  },
+  "games_game_remove": {
+    "url": "http://127.0.0.1:5001/games/game/remove",
+    "method": "DELETE",
+    "body": "{\"id\":\"\"}"
+  },
+  "achievements_achievement_remove": {
+    "url": "http://127.0.0.1:5001/achievements/achievement/remove",
+    "method": "DELETE",
+    "body": "{\"id\":\"\"}"
+  },
+  "achievements_user_achievement_remove": {
+    "url": "http://127.0.0.1:5001/achievements/user-achievement/remove",
+    "method": "DELETE",
+    "body": "{\"id\":\"\"}"
+  },
+  "rewards_available": {
+    "url": "http://127.0.0.1:5001/rewards/available",
     "method": "GET",
     "body": "{}"
   },
-  "rewards_celebrations": {
-    "url": "http://127.0.0.1:5001/rewards/celebrations",
+  "rewards_donate_points": {
+    "url": "http://127.0.0.1:5001/rewards/donate-points",
     "method": "POST",
-    "body": "{\"achievement_id\":1,\"message\":\"Congrats Alice for winning!\"}"
+    "body": "{\"recipient\":\"\",\"amount\":\"\"}"
   },
-  "rewards_rivalries": {
-    "url": "http://127.0.0.1:5001/rewards/rivalries",
+  "rewards_add": {
+    "url": "http://127.0.0.1:5001/rewards/add",
+    "method": "POST",
+    "body": "{\"name\":\"\",\"points\":\"\"}"
+  },
+  "rewards_remove": {
+    "url": "http://127.0.0.1:5001/rewards/remove",
+    "method": "DELETE",
+    "body": "{\"id\":\"\"}"
+  },
+  "social_teams_create": {
+    "url": "http://127.0.0.1:5001/social/teams/create",
+    "method": "POST",
+    "body": "{\"team_name\":\"\",\"members\":[]}"
+  },
+  "social_friends": {
+    "url": "http://127.0.0.1:5001/social/friends",
     "method": "GET",
     "body": "{}"
   },
-  "social_available": {
-    "url": "http://127.0.0.1:5001/social/available",
+  "social_challenges_send": {
+    "url": "http://127.0.0.1:5001/social/challenges/send",
+    "method": "POST",
+    "body": "{\"to\":\"\",\"challenge\":\"\"}"
+  },
+  "social_challenges_view": {
+    "url": "http://127.0.0.1:5001/social/challenges/view",
     "method": "GET",
     "body": "{}"
   },
-  "social_redeem": {
-    "url": "http://127.0.0.1:5001/social/redeem",
-    "method": "POST",
-    "body": "{\"reward_id\":1}"
-  },
-  "social_my_points": {
-    "url": "http://127.0.0.1:5001/social/my-points",
+  "social_activity_feed": {
+    "url": "http://127.0.0.1:5001/social/activity-feed",
     "method": "GET",
     "body": "{}"
   },
-  "social_donate_points": {
-    "url": "http://127.0.0.1:5001/social/donate-points",
-    "method": "POST",
-    "body": "{\"amount\":50,\"charity\":\"Red Cross\"}"
+  "social_celebrations": {
+    "url": "http://127.0.0.1:5001/social/celebrations",
+    "method": "GET",
+    "body": ""
   },
-  "social_store": {
-    "url": "http://127.0.0.1:5001/social/store",
+  "social_rivalries": {
+    "url": "http://127.0.0.1:5001/social/rivalries",
     "method": "GET",
     "body": "{}"
   },
-  "social_suggest": {
-    "url": "http://127.0.0.1:5001/social/suggest",
-    "method": "POST",
-    "body": "{\"name\":\"Gym Membership\",\"points\":400}"
+  "social_activity_remove": {
+    "url": "http://127.0.0.1:5001/social/activity/remove",
+    "method": "DELETE",
+    "body": "{\"id\":\"\"}"
+  },
+  "social_challenges_remove": {
+    "url": "http://127.0.0.1:5001/social/challenges/remove",
+    "method": "DELETE",
+    "body": "{\"id\":\"\"}"
   }
 }

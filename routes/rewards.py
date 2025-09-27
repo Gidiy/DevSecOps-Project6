@@ -1,104 +1,230 @@
 from flask import Blueprint, jsonify, request
-from utils.utils import L
-from flask_jwt_extended import get_jwt_identity
+from utils.db import db
+from datetime import datetime
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from routes.achievements import UserAchievement, Achievement
+from utils.utils import get_achievement_points
+from routes.games import Participation
 
 rewards_bp = Blueprint('rewards_bp', __name__)
 
-# ---------- HELPERS ----------
-def _uid_or_anon() -> str:
-    user = get_jwt_identity()
-    return user if user else 'anonymous'
+
+def _calculate_user_achievement_points(user_id: str) -> int:
+    """Calculate total achievement points for a user based on rarity"""
+    unlocked = UserAchievement.query.filter_by(user_id=user_id).all()
+    total_points = 0
+    for ua in unlocked:
+        achievement = Achievement.query.get(ua.achievement_id)
+        if achievement:
+                total_points += get_achievement_points(achievement.rarity)
+    return total_points
+
+# -------------------------------
+# Rewards-related Routes
+# -------------------------------
+@rewards_bp.get("/available")  
+# GET http://127.0.0.1:5001/rewards/available
+def rewards_available():
+    """List available rewards (manual only)."""
+    rewards = Reward.query.order_by(Reward.points.asc()).all()
+    return jsonify({"status": "success", "rewards": [r.serialize() for r in rewards]}), 200
 
 
-# ---------- ROUTES ----------
-@rewards_bp.post("/teams/create")  # יצירת צוותי תחרות
-# POST http://127.0.0.1:5001/rewards/teams/create
-# Body:
-# {
-#   "team_name": "Winners",
-#   "members": ["alice", "bob"]
-# }
-def rewards_teams_create():
-    body = request.get_json(force=True)
-    team_name = body.get("team_name")
-    members = body.get("members", [])
-    uid = _uid_or_anon()
+@rewards_bp.post("/redeem")  
+# POST http://127.0.0.1:5001/rewards/redeem
+# Body: { "reward_id": 1 }
+@jwt_required(optional=True)
+def rewards_redeem():
+    """Redeem points for a reward by id from DB with points check."""
+    data = request.get_json(silent=True) or {}
+    reward_id = data.get("reward_id")
+    if not reward_id:
+        return jsonify({"status": "error", "message": "reward_id is required"}), 400
+    try:
+        reward_id = int(reward_id)
+    except Exception:
+        return jsonify({"status": "error", "message": "reward_id must be integer"}), 400
 
-    L.log(f"Team created by {uid}: {team_name} with {len(members)} members")
+    r = Reward.query.get(reward_id)
+    if not r:
+        return jsonify({"status": "error", "message": "reward not found"}), 404
+
+    user = (get_jwt_identity() or 'anonymous')
+    # compute available points
+    ach_points = _calculate_user_achievement_points(user)
+    game_points = db.session.query(db.func.coalesce(db.func.sum(Participation.progress), 0)).filter_by(user_id=user).scalar() or 0
+    spent = db.session.query(db.func.coalesce(db.func.sum(Redemption.points), 0)).filter_by(user_id=user).scalar() or 0
+    available = int(ach_points) + int(game_points) - int(spent)
+    if available < r.points:
+        return jsonify({"status": "error", "message": "insufficient points", "available_points": int(available)}), 400
+
+    # record redemption
+    red = Redemption(user_id=user, reward_id=r.id, points=r.points)
+    db.session.add(red)
+    db.session.commit()
+
+    return jsonify({"status": "success", "reward": r.serialize(), "redeemed_by": user, "remaining_points": available - r.points}), 200
+
+
+@rewards_bp.get("/my-points")  
+# GET http://127.0.0.1:5001/rewards/my-points
+@jwt_required(optional=True)
+def rewards_my_points():
+    """Return computed points: achievements + game progress - redemptions."""
+    user = (get_jwt_identity() or 'anonymous')
+    ach_points = _calculate_user_achievement_points(user)
+    game_points = db.session.query(db.func.coalesce(db.func.sum(Participation.progress), 0)).filter_by(user_id=user).scalar() or 0
+    spent = db.session.query(db.func.coalesce(db.func.sum(Redemption.points), 0)).filter_by(user_id=user).scalar() or 0
+    total = int(ach_points) + int(game_points)
+    available = max(0, total - int(spent))
     return jsonify({
-        "message": "Team created successfully",
-        "team": {"name": team_name, "members": members}
-    }), 201
-
-
-@rewards_bp.get("/friends")  # צפייה בחברים/עמיתים מהמשרד
-# GET http://127.0.0.1:5001/rewards/friends
-def rewards_friends():
-    data = ["alice", "bob", "charlie"]
-    L.log("Fetched friends list")
-    return jsonify({"friends": data}), 200
-
-
-@rewards_bp.post("/challenges/send")  # שליחת אתגרים אישיים
-# POST http://127.0.0.1:5001/rewards/challenges/send
-# Body:
-# {
-#   "to": "alice",
-#   "challenge": "Push-up contest"
-# }
-def rewards_challenges_send():
-    body = request.get_json(force=True)
-    target = body.get("to")
-    challenge = body.get("challenge")
-    uid = _uid_or_anon()
-
-    L.log(f"Challenge sent by {uid} to {target}: {challenge}")
-    return jsonify({
-        "message": "Challenge sent",
-        "from": uid,
-        "to": target,
-        "challenge": challenge
+        "achievement_points": int(ach_points),
+        "game_points": int(game_points),
+        "spent_points": int(spent),
+        "available_points": int(available)
     }), 200
 
 
-@rewards_bp.get("/activity-feed")  # פיד של פעילות חברתית
-# GET http://127.0.0.1:5001/rewards/activity-feed
-def rewards_activity_feed():
-    data = [
-        {"user": "alice", "action": "unlocked achievement Code Master"},
-        {"user": "bob", "action": "joined the Fitness Challenge"},
-    ]
-    L.log("Fetched activity feed")
-    return jsonify({"feed": data}), 200
+@rewards_bp.post("/donate-points")  
+# POST http://127.0.0.1:5001/rewards/donate-points
+# Body: { "amount": 50, "charity": "Red Cross" }
+@jwt_required(optional=True)
+def rewards_donate_points():
+    """Donate points to another user with points validation."""
+    data = request.get_json(silent=True) or {}
+    amount = data.get("amount")
+    recipient = data.get("recipient")
 
+    if not amount or not recipient:
+        return jsonify({"status": "error", "message": "amount and recipient are required"}), 400
 
-@rewards_bp.post("/celebrations")  # חגיגת הישגים
-# POST http://127.0.0.1:5001/rewards/celebrations
-# Body:
-# {
-#   "achievement_id": 1,
-#   "message": "Congrats Alice for winning!"
-# }
-def rewards_celebrations():
-    body = request.get_json(force=True)
-    achievement_id = body.get("achievement_id")
-    message = body.get("message")
-    uid = _uid_or_anon()
+    try:
+        amount = int(amount)
+    except Exception:
+        return jsonify({"status": "error", "message": "amount must be integer"}), 400
 
-    L.log(f"Celebration posted by {uid} for achievement {achievement_id}: {message}")
+    donor = (get_jwt_identity() or 'anonymous')
+    
+    # Check if recipient exists (they should be a registered user)
+    from classes.user import User
+    recipient_user = User.query.filter_by(username=recipient).first()
+    if not recipient_user:
+        return jsonify({"status": "error", "message": "recipient user not found"}), 404
+    
+    # Import Participation here to avoid circular imports
+    from routes.games import Participation
+    
+    # Check available points for donor
+    ach_points = _calculate_user_achievement_points(donor)
+    game_points = db.session.query(db.func.coalesce(db.func.sum(Participation.progress), 0)).filter_by(user_id=donor).scalar() or 0
+    spent = db.session.query(db.func.coalesce(db.func.sum(Redemption.points), 0)).filter_by(user_id=donor).scalar() or 0
+    available = int(ach_points) + int(game_points) - int(spent)
+    
+    if available < amount:
+        return jsonify({"status": "error", "message": "insufficient points", "available_points": int(available)}), 400
+
+    # Use manual leaderboard entries for donations (simpler approach)
+    from routes.leaderboards import ManualLeaderboardEntry
+    
+    # Deduct points from donor
+    donor_entry = ManualLeaderboardEntry.query.filter_by(user=donor, board='global').first()
+    if donor_entry:
+        donor_entry.points -= amount
+    else:
+        donor_entry = ManualLeaderboardEntry(user=donor, board='global', points=-amount)
+        db.session.add(donor_entry)
+    
+    # Add points to recipient
+    recipient_entry = ManualLeaderboardEntry.query.filter_by(user=recipient, board='global').first()
+    if recipient_entry:
+        recipient_entry.points += amount
+    else:
+        recipient_entry = ManualLeaderboardEntry(user=recipient, board='global', points=amount)
+        db.session.add(recipient_entry)
+    
+    db.session.commit()
+
     return jsonify({
-        "message": "Celebration posted",
-        "achievement_id": achievement_id,
-        "celebration": message
+        "status": "success",
+        "donated": amount,
+        "recipient": recipient,
+        "donated_by": donor,
+        "remaining_points": available - amount
+    }), 200
+
+
+@rewards_bp.post("/add")  
+# POST http://127.0.0.1:5001/rewards/add
+# Body: { "name": "Gym Membership", "points": 400 }
+@jwt_required(optional=True)
+def rewards_add():
+    """Add a new reward to the available list."""
+    data = request.get_json(silent=True) or {}
+    name = data.get("name")
+    points = data.get("points")
+
+    if not name or points is None:
+        return jsonify({"status": "error", "message": "name and points are required"}), 400
+    try:
+        points = int(points)
+    except Exception:
+        return jsonify({"status": "error", "message": "points must be integer"}), 400
+
+    r = Reward(name=name, points=points)
+    db.session.add(r)
+    db.session.commit()
+
+    user = get_jwt_identity()
+    return jsonify({
+        "status": "success",
+        "reward": r.serialize(),
+        "added_by": user
     }), 201
 
 
-@rewards_bp.get("/rivalries")  # יריבויות משרדיות מהנות
-# GET http://127.0.0.1:5001/rewards/rivalries
-def rewards_rivalries():
-    data = [
-        {"user1": "alice", "user2": "bob", "status": "friendly rivalry"},
-        {"user1": "charlie", "user2": "dave", "status": "step challenge"}
-    ]
-    L.log("Fetched rivalries")
-    return jsonify({"rivalries": data}), 200
+@rewards_bp.delete("/remove")
+# DELETE http://127.0.0.1:5001/rewards/remove
+# Body: { "id": 1 }
+@jwt_required(optional=True)
+def rewards_remove():
+    """Remove a reward from the available list."""
+    data = request.get_json(silent=True) or {}
+    reward_id = data.get("id")
+    
+    if not reward_id:
+        return jsonify({"status": "error", "message": "id is required"}), 400
+    
+    try:
+        reward_id = int(reward_id)
+    except Exception:
+        return jsonify({"status": "error", "message": "id must be integer"}), 400
+    
+    reward = Reward.query.get(reward_id)
+    if not reward:
+        return jsonify({"status": "error", "message": "reward not found"}), 404
+    
+    db.session.delete(reward)
+    db.session.commit()
+    
+    return jsonify({"status": "success", "message": "Reward removed successfully"}), 200
+
+
+# --- Models ---
+class Reward(db.Model):
+    __tablename__ = 'rewards_rewards'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(150), nullable=False)
+    points = db.Column(db.Integer, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def serialize(self):
+        return {"id": self.id, "name": self.name, "points": self.points}
+
+
+class Redemption(db.Model):
+    __tablename__ = 'rewards_redemptions'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(120), nullable=False)
+    reward_id = db.Column(db.Integer, db.ForeignKey('rewards_rewards.id'), nullable=False)
+    points = db.Column(db.Integer, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
