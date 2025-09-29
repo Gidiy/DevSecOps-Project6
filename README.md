@@ -1,5 +1,10 @@
 # DevSecOps Project 6 - Gamified Office Management System
 
+### Team Members:
+- Gilad Iosef
+- Max Zalmanov
+- Kfir
+
 ## 🎮 Overview
 Transform boring office tasks into exciting games! Create competitions for everything - code quality, energy saving, fitness, learning, team challenges. Complete with leaderboards, achievements, and rewards!
 
