@@ -5,7 +5,7 @@ from utils.db import db
 from datetime import datetime
 from routes.achievements import UserAchievement, Achievement
 from routes.social import UserTeam
-from routes.rewards import Redemption
+# Redemption imported inside functions to avoid circular import
 from routes.games import Competition
 
 leaderboards_bp = Blueprint('leaderboards_bp', __name__)
@@ -116,6 +116,7 @@ def leaderboard_global():
         combined_game_points = int(participation_points) + manual_points
         
         # Calculate spent points from redemptions
+        from routes.rewards import Redemption
         spent = db.session.query(db.func.coalesce(db.func.sum(Redemption.points), 0)).filter_by(user_id=user).scalar() or 0
         spent_points = int(spent)
         
@@ -188,6 +189,7 @@ def leaderboard_team():
         combined_game_points = int(participation_points) + manual_points
         
         # Calculate spent points from redemptions
+        from routes.rewards import Redemption
         spent = db.session.query(db.func.coalesce(db.func.sum(Redemption.points), 0)).filter_by(user_id=user).scalar() or 0
         spent_points = int(spent)
         
@@ -276,6 +278,7 @@ def leaderboard_monthly():
         combined_game_points = int(participation_points) + manual_points
         
         # Calculate spent points from redemptions
+        from routes.rewards import Redemption
         spent = db.session.query(db.func.coalesce(db.func.sum(Redemption.points), 0)).filter_by(user_id=user).scalar() or 0
         spent_points = int(spent)
         
@@ -356,6 +359,7 @@ def leaderboard_hall_of_fame():
         combined_game_points = int(participation_points) + manual_points
         
         # Calculate spent points from redemptions
+        from routes.rewards import Redemption
         spent = db.session.query(db.func.coalesce(db.func.sum(Redemption.points), 0)).filter_by(user_id=user).scalar() or 0
         spent_points = int(spent)
         
